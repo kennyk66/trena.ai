@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rescore-leads",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/generate-focus",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:docs.lusha.com)",
+      "Bash(dir \"C:\\Users\\ryank\\Documents\\Trena_v9\\trena-app\\public\\images\")",
+      "Bash(dir \"C:\\Users\\ryank\\Documents\\Trena_v9\\trena-app\\public\\images\\social media\")",
+      "Bash(npm outdated:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:info.lusha.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
