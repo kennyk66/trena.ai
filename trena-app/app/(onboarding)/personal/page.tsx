@@ -26,6 +26,9 @@ export default function PersonalPage() {
     name: '',
     job_title: '',
     company_name: '',
+    linkedin_url: '',
+    email: '',
+    timezone: '',
     sales_quota: '',
     experience_level: '',
   });
@@ -83,7 +86,7 @@ export default function PersonalPage() {
       <ProgressBar currentStep={currentStepNumber} totalSteps={totalSteps} />
 
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold">Tell us about yourself</h2>
+        <h2 className="text-2xl font-bold">Who are you?</h2>
         <p className="text-muted-foreground">
           Help us understand your role and experience so we can personalize your
           Trena experience.
@@ -162,6 +165,45 @@ export default function PersonalPage() {
           <p className="text-xs text-muted-foreground">
             This helps us track your progress and celebrate wins
           </p>
+        </div>
+
+        {/* LinkedIn URL */}
+        <div className="space-y-2">
+          <Label htmlFor="linkedin_url">LinkedIn URL (optional)</Label>
+          <Input
+            id="linkedin_url"
+            type="url"
+            placeholder="https://linkedin.com/in/yourprofile"
+            value={formData.linkedin_url}
+            onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">
+            Helps us find better leads in your network
+          </p>
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email">Email (optional)</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="your.email@company.com"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          />
+        </div>
+
+        {/* Timezone */}
+        <div className="space-y-2">
+          <Label htmlFor="timezone">Timezone (optional)</Label>
+          <Input
+            id="timezone"
+            type="text"
+            placeholder="America/New_York or UTC+10"
+            value={formData.timezone}
+            onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+          />
         </div>
 
         {/* Experience Level */}

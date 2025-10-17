@@ -45,7 +45,7 @@ export function SearchForm({ onSuccess, onError }: SearchFormProps) {
       if ((name || company) && !isLoading) {
         // Small delay to ensure form is populated
         setTimeout(() => {
-          const formEvent = new Event('submit', { cancelable: true }) as any;
+          const formEvent = new Event('submit', { cancelable: true }) as Event & { preventDefault: () => void };
           const form = document.querySelector('form');
           if (form) {
             form.dispatchEvent(formEvent);

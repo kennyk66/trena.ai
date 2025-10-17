@@ -199,7 +199,7 @@ export function RecommendedLeadsWidget({ limit = 3 }: RecommendedLeadsWidgetProp
               </ul>
             </div>
           )}
-          <Button size="sm" variant="outline" onClick={fetchRecommendedLeads}>
+          <Button size="sm" variant="outline" onClick={() => fetchRecommendedLeads()}>
             Try Again
           </Button>
         </div>
@@ -214,11 +214,11 @@ export function RecommendedLeadsWidget({ limit = 3 }: RecommendedLeadsWidgetProp
           </p>
           {strategy?.name.includes('general') && (
             <p className="text-xs text-gray-400 mb-3">
-              We tried broad search criteria but didn't find matches. Try adjusting your targeting preferences.
+              We tried broad search criteria but didn&apos;t find matches. Try adjusting your targeting preferences.
             </p>
           )}
           <div className="flex gap-2 justify-center">
-            <Button size="sm" variant="outline" onClick={fetchRecommendedLeads}>
+            <Button size="sm" variant="outline" onClick={() => fetchRecommendedLeads()}>
               Refresh Recommendations
             </Button>
             <Button size="sm" variant="ghost" onClick={() => router.push('/onboarding')}>
@@ -307,7 +307,7 @@ export function RecommendedLeadsWidget({ limit = 3 }: RecommendedLeadsWidgetProp
               variant="outline"
               size="sm"
               className="w-full gap-1"
-              onClick={fetchRecommendedLeads}
+              onClick={() => fetchRecommendedLeads()}
             >
               <RefreshCw className="h-4 w-4" />
               Show New Recommendations

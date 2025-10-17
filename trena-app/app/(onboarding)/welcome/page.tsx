@@ -20,8 +20,7 @@ export default function WelcomePage() {
         </h1>
 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Your AI-powered sales assistant that helps you hit quota, close more
-          deals, and feel confident in every conversation.
+          Hey there! Before we jump into lead gen and outreach, let&apos;s make Trena feel like your own sidekick. Just a few quick questions and we&apos;re off to find your next win.
         </p>
       </div>
 
@@ -63,7 +62,7 @@ export default function WelcomePage() {
         <p className="text-muted-foreground">
           Let&apos;s personalize Trena to match your selling style and goals.
           <br />
-          This will only take 5 minutes.
+          This will only take 5 minutes and will make Trena feel like your own assistant.
         </p>
 
         <Button

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "streamable-http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@0.5.5",
+        "--access-token",
+        "sbp_5b5b9d6cc659d3811273fe7831eb39277e9cfb7c"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@0.0.38"]
+    },
+    "web-access": {
+      "command": "node",
+      "args": ["C:\\Users\\ryank\\AppData\\Roaming\\Kilo-Code\\MCP\\web-access-server\\build\\index.js"]
+    }
+  }
+}

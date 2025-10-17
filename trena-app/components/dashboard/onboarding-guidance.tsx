@@ -35,7 +35,7 @@ export function OnboardingGuidance({ className }: OnboardingGuidanceProps) {
           <div className="flex items-center gap-3 text-sm text-left p-3 bg-gray-50 rounded-lg">
             <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0" />
             <span>
-              <span className="font-medium">Smart Matching:</span> We'll find leads that match your ideal customer profile
+              <span className="font-medium">Smart Matching:</span> We&apos;ll find leads that match your ideal customer profile
             </span>
           </div>
 

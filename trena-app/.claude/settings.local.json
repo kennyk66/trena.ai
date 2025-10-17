@@ -7,7 +7,18 @@
       "Bash(dir \"C:\\Users\\ryank\\Documents\\Trena_v9\\trena-app\\public\\images\\social media\")",
       "Bash(npm outdated:*)",
       "Bash(npm view:*)",
-      "WebFetch(domain:info.lusha.com)"
+      "WebFetch(domain:info.lusha.com)",
+      "Bash(claude --version)",
+      "Read(//c/Users/ryank/.claude/**)",
+      "WebFetch(domain:www.lusha.com)",
+      "Bash(npm run dev)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run build:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

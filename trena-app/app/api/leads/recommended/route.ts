@@ -175,7 +175,7 @@ export async function GET(request: Request) {
     // Lusha API already returns enriched leads with match scoring
     const enrichedLeads = result.data;
 
-    console.log('📈 Lead match scores:', enrichedLeads.map((lead: any) => ({
+    console.log('📈 Lead match scores:', enrichedLeads.map((lead: { lead_name?: string; name?: string; match_score?: number; match_reasoning?: string }) => ({
       name: lead.lead_name || lead.name,
       score: lead.match_score,
       reasoning: lead.match_reasoning

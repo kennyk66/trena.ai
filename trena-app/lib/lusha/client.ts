@@ -43,7 +43,7 @@ export async function searchPeopleWithFallback(
     roles: string[];
     region?: string;
   }
-): Promise<LushaApiResponse & { strategy?: SearchStrategy }> {
+): Promise<{ success: boolean; data?: LeadData[]; strategy?: SearchStrategy; error?: string }> {
   console.log('🔍 Starting progressive search with fallback strategies');
 
   // Generate search strategies based on user preferences
@@ -87,7 +87,7 @@ export async function searchPeopleWithFallback(
 
         return {
           success: true,
-          data: enrichedLeads as any, // Type cast to handle the enriched lead format
+          data: enrichedLeads,
           strategy
         };
       } else {
@@ -385,11 +385,11 @@ async function prospectContactSearch(params: {
     let contactIds: string[] = [];
 
     if (Array.isArray(data.data)) {
-      contactIds = data.data.map((c: any) => c.id || c.contactId).filter(Boolean);
+      contactIds = data.data.map((c: { id?: string; contactId?: string }) => c.id || c.contactId).filter(Boolean);
     } else if (Array.isArray(data.contacts)) {
-      contactIds = data.contacts.map((c: any) => c.id || c.contactId).filter(Boolean);
+      contactIds = data.contacts.map((c: { id?: string; contactId?: string }) => c.id || c.contactId).filter(Boolean);
     } else if (Array.isArray(data.results)) {
-      contactIds = data.results.map((c: any) => c.id || c.contactId).filter(Boolean);
+      contactIds = data.results.map((c: { id?: string; contactId?: string }) => c.id || c.contactId).filter(Boolean);
     }
 
     if (contactIds.length > 0) {
@@ -631,7 +631,7 @@ export async function testLushaAPIRequest(
     jobTitles?: string[];
     regions?: string[];
   } = {}
-): Promise<{ success: boolean; request?: Record<string, unknown>; response?: any; error?: string }> {
+): Promise<{ success: boolean; request?: Record<string, unknown>; response?: unknown; error?: string }> {
   const apiKey = process.env.LUSHA_API_KEY;
 
   if (!apiKey) {
@@ -773,7 +773,7 @@ export async function testLushaAPIRequest(
     try {
       responseData = JSON.parse(responseText);
       console.log('Response body:', JSON.stringify(responseData, null, 2));
-    } catch (e) {
+    } catch (e: unknown) {
       console.log('Response text (not JSON):', responseText);
       responseData = responseText;
     }

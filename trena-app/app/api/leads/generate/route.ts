@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { searchPeopleWithFallback } from '@/lib/lusha/client';
+import { searchPeopleWithFallback, convertToLeadData } from '@/lib/lusha/client';
 
 export async function POST() {
   try {
@@ -73,18 +73,8 @@ export async function POST() {
       });
     }
 
-    // Lusha API already returns enriched leads in the correct format
-    const leads = result.data.map(lead => ({
-      lead_name: lead.lead_name || lead.name,
-      job_title: lead.job_title,
-      company_name: lead.company_name,
-      email: lead.email,
-      phone: lead.phone,
-      linkedin_url: lead.linkedin_url,
-      company_size: lead.company_size,
-      industry: lead.industry,
-      source: lead.source || 'Lusha'
-    }));
+    // Convert Lusha data to lead format
+    const leads = result.data.map(lead => convertToLeadData(lead));
 
     // Save leads to database
     const leadsToSave = leads.map((lead) => ({
