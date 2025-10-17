@@ -31,6 +31,9 @@ export interface PersonalFormData {
   name: string;
   job_title: string;
   company_name: string;
+  linkedin_url?: string;
+  email?: string;
+  timezone?: string;
   sales_quota: string;
   experience_level: string;
 }
@@ -40,6 +43,11 @@ export interface MotivatorsFormData {
   motivators: string[];
   motivators_other?: string;
   selling_style: string;
+  email_opener_style?: string;
+  use_name_in_outreach?: boolean;
+  current_target?: string;
+  biggest_blocker?: string;
+  support_needs?: string;
 }
 
 // Step 4: Target Buyer
@@ -48,6 +56,7 @@ export interface TargetBuyerFormData {
   industries_other?: string;
   target_roles: string[];
   roles_other?: string;
+  company_size?: string[];
   target_region: string;
   sales_motion: string;
 }

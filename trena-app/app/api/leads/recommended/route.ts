@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { searchPeople, convertToLeadData } from '@/lib/lusha/client';
+import { searchPeopleWithFallback } from '@/lib/lusha/client';
 
 // Rate limiting configuration
 const REFRESH_COOLDOWN_SECONDS = parseInt(process.env.LUSHA_REFRESH_COOLDOWN_SECONDS || '30', 10);
@@ -30,6 +30,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '3', 10);
     const forceRefresh = searchParams.get('forceRefresh') === 'true';
+    const clearCache = searchParams.get('clearCache') === 'true';
 
     // Get user's onboarding preferences
     const { data: profile } = await supabase
@@ -59,8 +60,20 @@ export async function GET(request: Request) {
       });
     }
 
+    // Clear cache if requested
+    if (clearCache) {
+      console.log('🗑️ Clearing cached recommended leads');
+      await supabase
+        .from('user_profiles')
+        .update({
+          recommended_leads_cache: null,
+          recommended_leads_cached_at: null,
+        })
+        .eq('id', user.id);
+    }
+
     // Check cache first (unless forceRefresh)
-    if (!forceRefresh) {
+    if (!forceRefresh && !clearCache) {
       const cacheExpiryTime = new Date();
       cacheExpiryTime.setHours(cacheExpiryTime.getHours() - CACHE_HOURS);
 
@@ -75,7 +88,7 @@ export async function GET(request: Request) {
         cachedLeads?.recommended_leads_cached_at &&
         new Date(cachedLeads.recommended_leads_cached_at) > cacheExpiryTime
       ) {
-        console.log('Returning cached recommended leads');
+        console.log('📦 Returning cached recommended leads');
         return NextResponse.json({
           success: true,
           leads: cachedLeads.recommended_leads_cache,
@@ -114,94 +127,78 @@ export async function GET(request: Request) {
       }
     }
 
-    // Search for leads using Lusha with user's preferences
-    console.log('Fetching fresh leads from Lusha Prospecting API');
-    const result = await searchPeople({
-      industries: profile.target_industries || [],
-      jobTitles: profile.target_roles || [],
-      regions: profile.target_region ? [profile.target_region] : [],
-      limit,
+    // Search for leads using Lusha API with progressive fallback strategies
+    console.log('🚀 Starting enhanced Lusha lead search with progressive strategies');
+    console.log('📊 User preferences:', {
+      industries: profile.target_industries,
+      roles: profile.target_roles,
+      region: profile.target_region,
+      limit
     });
 
+    const userPreferences = {
+      industries: profile.target_industries || [],
+      roles: profile.target_roles || [],
+      region: profile.target_region || undefined
+    };
+
+    const result = await searchPeopleWithFallback(
+      {
+        industries: profile.target_industries || [],
+        jobTitles: profile.target_roles || [],
+        regions: profile.target_region ? [profile.target_region] : [],
+        limit,
+      },
+      userPreferences
+    );
+
     if (!result.success || !result.data) {
+      console.log('❌ All search strategies failed');
       return NextResponse.json(
         {
           success: false,
-          error: result.error || 'Failed to fetch leads from Lusha',
+          error: result.error || 'Failed to fetch leads from Lusha API after trying multiple strategies',
+          strategy: result.strategy,
+          suggestions: [
+            'Try broadening your target industries or roles',
+            'Check if your Lusha API key is valid and has sufficient credits',
+            'Enable mock data by setting LUSHA_USE_MOCK_DATA=true in your environment',
+            'Contact support if this issue persists'
+          ]
         },
         { status: 500 }
       );
     }
 
-    // Convert to LeadData format and add match reasoning
-    const leadsWithMatching = result.data.map((person) => {
-      const leadData = convertToLeadData(person);
+    console.log(`✅ Successfully found ${result.data.length} leads using strategy: ${result.strategy?.name}`);
 
-      // Calculate match score and reasoning
-      const matches: string[] = [];
-      let matchScore = 0;
+    // Lusha API already returns enriched leads with match scoring
+    const enrichedLeads = result.data;
 
-      // Industry match
-      if (person.company?.industry && profile.target_industries) {
-        const industryMatch = profile.target_industries.some(
-          (targetIndustry: string) =>
-            person.company?.industry?.toLowerCase().includes(targetIndustry.toLowerCase()) ||
-            targetIndustry.toLowerCase().includes(person.company?.industry?.toLowerCase() || '')
-        );
-        if (industryMatch) {
-          matches.push(`${person.company.industry} industry`);
-          matchScore += 2;
-        }
-      }
-
-      // Role/title match
-      if (person.jobTitle && profile.target_roles) {
-        const roleMatch = profile.target_roles.some(
-          (targetRole: string) =>
-            person.jobTitle?.toLowerCase().includes(targetRole.toLowerCase()) ||
-            targetRole.toLowerCase().includes(person.jobTitle?.toLowerCase() || '')
-        );
-        if (roleMatch) {
-          matches.push(`${person.jobTitle} role`);
-          matchScore += 2;
-        }
-      }
-
-      // Region match
-      if (profile.target_region && profile.target_region !== 'Global/Multiple regions') {
-        matches.push(`${profile.target_region} region`);
-        matchScore += 1;
-      }
-
-      return {
-        ...leadData,
-        match_reasoning: matches.length > 0
-          ? `Matches your target: ${matches.join(', ')}`
-          : 'Recommended based on your preferences',
-        match_score: matchScore,
-      };
-    });
-
-    // Sort by match score (highest first)
-    const sortedLeads = leadsWithMatching.sort((a, b) => b.match_score - a.match_score);
+    console.log('📈 Lead match scores:', enrichedLeads.map((lead: any) => ({
+      name: lead.lead_name || lead.name,
+      score: lead.match_score,
+      reasoning: lead.match_reasoning
+    })));
 
     // Cache the results and update last refresh timestamp
     const now = new Date().toISOString();
     await supabase
       .from('user_profiles')
       .update({
-        recommended_leads_cache: sortedLeads,
+        recommended_leads_cache: enrichedLeads,
         recommended_leads_cached_at: now,
         recommended_leads_last_refresh: now,
       })
       .eq('id', user.id);
 
-    console.log(`Cached ${sortedLeads.length} recommended leads for user ${user.id}`);
+    console.log(`Cached ${enrichedLeads.length} recommended leads for user ${user.id}`);
 
     return NextResponse.json({
       success: true,
-      leads: sortedLeads,
+      leads: enrichedLeads,
       cached: false,
+      strategy: result.strategy,
       preferences: {
         industries: profile.target_industries,
         roles: profile.target_roles,

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { searchPeople, convertToLeadData } from '@/lib/lusha/client';
+import { ClayClient } from '@/lib/clay/client';
+import { ClayDataMapper } from '@/lib/clay/data-mapper';
 
 export async function POST() {
   try {
@@ -31,26 +32,60 @@ export async function POST() {
       );
     }
 
-    // Search for leads using Lusha
-    const result = await searchPeople({
-      industries: profile.target_industries || [],
-      jobTitles: profile.target_roles || [],
-      regions: profile.target_region ? [profile.target_region] : [],
-      limit: 3,
+    // Initialize Clay.com client
+    const clayClient = new ClayClient({
+      apiKey: process.env.CLAY_API_KEY!,
+      rateLimit: {
+        requests_per_minute: 60,
+        requests_per_second: 1,
+        burst_limit: 5
+      },
+      cache: {
+        enabled: true,
+        ttl_hours: 24,
+        max_size: 100
+      },
+      mockData: {
+        enabled: process.env.CLAY_USE_MOCK_DATA === 'true',
+        fallback_on_error: true
+      }
     });
 
-    if (!result.success) {
+    console.log('🚀 Generating Clay.com leads for quick-win with preferences:', {
+      industries: profile.target_industries,
+      roles: profile.target_roles,
+      region: profile.target_region
+    });
+
+    // Search for leads using Clay.com
+    const userPreferences = {
+      industries: profile.target_industries || [],
+      roles: profile.target_roles || [],
+      region: profile.target_region || undefined
+    };
+
+    const result = await clayClient.searchPeopleWithFallback(
+      {
+        industries: profile.target_industries || [],
+        job_titles: profile.target_roles || [],
+        regions: profile.target_region ? [profile.target_region] : [],
+        limit: 3,
+      },
+      userPreferences
+    );
+
+    if (!result.success || !result.data) {
       return NextResponse.json(
         {
           success: false,
-          error: result.error || 'Failed to fetch leads',
+          error: result.error || 'Failed to fetch leads from Clay.com',
         },
         { status: 500 }
       );
     }
 
     // Handle empty results gracefully
-    if (!result.data || result.data.length === 0) {
+    if (result.data.length === 0) {
       return NextResponse.json({
         success: true,
         leads: [],
@@ -58,8 +93,8 @@ export async function POST() {
       });
     }
 
-    // Convert to LeadData format
-    const leads = result.data.map(convertToLeadData);
+    // Transform Clay.com data to lead format
+    const leads = ClayDataMapper.toLeadDataArray(result.data);
 
     // Save leads to database
     const leadsToSave = leads.map((lead) => ({

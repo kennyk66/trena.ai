@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,12 +16,44 @@ interface SearchFormProps {
 
 export function SearchForm({ onSuccess, onError }: SearchFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     person_name: '',
     company_name: '',
     email: '',
     linkedin_url: '',
   });
+
+  // Pre-populate form from URL parameters and auto-submit if data is present
+  useEffect(() => {
+    const name = searchParams.get('name');
+    const company = searchParams.get('company');
+    const email = searchParams.get('email');
+    const linkedin = searchParams.get('linkedin');
+
+    if (name || company || email || linkedin) {
+      const newFormData = {
+        person_name: name || '',
+        company_name: company || '',
+        email: email || '',
+        linkedin_url: linkedin || '',
+      };
+
+      setFormData(newFormData);
+
+      // Auto-submit if we have meaningful data (at least name or company)
+      if ((name || company) && !isLoading) {
+        // Small delay to ensure form is populated
+        setTimeout(() => {
+          const formEvent = new Event('submit', { cancelable: true }) as any;
+          const form = document.querySelector('form');
+          if (form) {
+            form.dispatchEvent(formEvent);
+          }
+        }, 100);
+      }
+    }
+  }, [searchParams, isLoading]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

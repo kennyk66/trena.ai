@@ -17,11 +17,27 @@ export const MOTIVATORS = [
 ] as const;
 
 export const SELLING_STYLES = [
-  { value: 'formal', label: 'Formal and professional' },
   { value: 'casual', label: 'Casual and friendly' },
   { value: 'direct', label: 'Direct and concise' },
-  { value: 'consultative', label: 'Consultative and educational' },
-  { value: 'enthusiastic', label: 'Enthusiastic and energetic' },
+  { value: 'helpful', label: 'Helpful and supportive' },
+  { value: 'challenger', label: 'Challenger - pushes thinking' },
+  { value: 'insight-driven', label: 'Insight-driven and educational' },
+  { value: 'friendly', label: 'Friendly and approachable' },
+  { value: 'formal', label: 'Formal and professional' },
+] as const;
+
+export const EMAIL_OPENER_STYLES = [
+  { value: 'joke', label: 'Start with a light joke' },
+  { value: 'stat', label: 'Lead with an interesting stat' },
+  { value: 'compliment', label: 'Give a genuine compliment' },
+  { value: 'pain-point', label: 'Address a pain point directly' },
+] as const;
+
+export const COMPANY_SIZES = [
+  { value: 'startup', label: 'Startup (1-50 employees)' },
+  { value: 'small', label: 'Small business (51-200 employees)' },
+  { value: 'mid-market', label: 'Mid-market (201-1000 employees)' },
+  { value: 'enterprise', label: 'Enterprise (1000+ employees)' },
 ] as const;
 
 export const INDUSTRIES = [
@@ -83,4 +99,14 @@ export function getExperienceLevelLabel(value: string): string {
 export function getSellingStyleLabel(value: string): string {
   const style = SELLING_STYLES.find((s) => s.value === value);
   return style?.label || value;
+}
+
+export function getEmailOpenerStyleLabel(value: string): string {
+  const style = EMAIL_OPENER_STYLES.find((s) => s.value === value);
+  return style?.label || value;
+}
+
+export function getCompanySizeLabel(value: string): string {
+  const size = COMPANY_SIZES.find((s) => s.value === value);
+  return size?.label || value;
 }
