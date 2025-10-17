@@ -5,9 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import type {
   UserGamification,
   UserAchievement,
-  GamificationEvent,
   GameEventType,
-  POINT_VALUES,
   AchievementDefinition,
   LevelDefinition,
   GamificationSummary,

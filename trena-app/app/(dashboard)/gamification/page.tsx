@@ -25,8 +25,7 @@ export default async function GamificationPage() {
     return <div>Loading...</div>;
   }
 
-  const { stats, recentAchievements, weeklyProgress, pointsThisWeek, progressToNextLevel } =
-    summary;
+  const { stats, weeklyProgress, pointsThisWeek, progressToNextLevel } = summary;
 
   // Get all user achievements
   const { data: unlockedAchievements } = await supabase

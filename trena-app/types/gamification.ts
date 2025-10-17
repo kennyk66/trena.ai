@@ -40,17 +40,6 @@ export interface UserAchievement {
   unlocked_at: string;
 }
 
-/**
- * Gamification event (point-earning action)
- */
-export interface GamificationEvent {
-  id: string;
-  user_id: string;
-  event_type: string;
-  points_earned: number;
-  metadata: Record<string, unknown>;
-  created_at: string;
-}
 
 /**
  * Achievement definition
@@ -87,18 +76,6 @@ export type GameEventType =
   | 'focus_completed'
   | 'daily_login';
 
-/**
- * Points awarded for each event type
- */
-export const POINT_VALUES: Record<GameEventType, number> = {
-  lead_researched: 10,
-  high_priority_lead_researched: 20,
-  message_generated: 15,
-  message_sent: 25,
-  reply_received: 50,
-  focus_completed: 100,
-  daily_login: 5,
-};
 
 /**
  * Weekly goal progress

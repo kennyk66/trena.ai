@@ -101,36 +101,6 @@ const WEAK_PHRASES = [
   },
 ];
 
-/**
- * Best practice tips
- */
-const BEST_PRACTICES = [
-  {
-    type: 'personalization',
-    title: 'Personalization',
-    description: 'Reference specific details about their company, role, or recent news',
-  },
-  {
-    type: 'value_prop',
-    title: 'Clear Value',
-    description: 'Lead with value or insight, not your product pitch',
-  },
-  {
-    type: 'brevity',
-    title: 'Keep it Short',
-    description: 'Emails under 200 words get 50% more replies',
-  },
-  {
-    type: 'cta',
-    title: 'Strong CTA',
-    description: 'End with one specific, low-friction ask',
-  },
-  {
-    type: 'subject',
-    title: 'Subject Line',
-    description: 'Keep subject under 60 characters for mobile readability',
-  },
-];
 
 /**
  * Analyze message and provide coaching tips

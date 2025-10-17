@@ -441,7 +441,7 @@ async function saveOutreachMessage(params: {
 function getMockContent(
   context: GenerationContext,
   messageType: MessageType,
-  tone: ToneOption
+  _tone: ToneOption
 ): { subject: string | null; body: string } {
   const leadName = context.lead.name || 'there';
   const companyName = context.lead.company_name || 'your company';

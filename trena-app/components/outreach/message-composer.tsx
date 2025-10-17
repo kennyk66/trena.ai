@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, RefreshCw, Save, Eye, Copy } from 'lucide-react';
-import type { MessageType, ToneOption } from '@/types/outreach';
+import type { MessageType } from '@/types/outreach';
 
 interface MessageComposerProps {
   messageType: MessageType;

@@ -3,9 +3,6 @@ import {
   LushaPersonData,
   LushaApiResponse,
   LeadData,
-  LushaFilters,
-  LushaRawPerson,
-  LushaRawResponse,
 } from '@/types/onboarding';
 import type {
   LushaCompanyData,
@@ -228,19 +225,19 @@ export async function searchPeople(
       .filter(contact => contact.isSuccess && contact.data)
       .map((contact) => {
         const data = contact.data;
-        const jobTitle = typeof data.jobTitle === 'string' ? data.jobTitle : data.jobTitle;
+          const jobTitle = typeof data?.jobTitle === 'string' ? data.jobTitle : data?.jobTitle?.title || '';
 
         return {
-          name: data.fullName || `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          name: data?.fullName || `${data?.firstName || ''} ${data?.lastName || ''}`.trim(),
           jobTitle: jobTitle,
           company: {
-            name: data.companyName || '',
-            industry: data.company?.mainIndustry || data.company?.subIndustry,
-            size: data.company?.employees,
+            name: data?.companyName || '',
+            industry: data?.company?.mainIndustry || data?.company?.subIndustry,
+            size: data?.company?.employees,
           },
-          email: data.emailAddresses?.[0]?.email,
-          phone: data.phoneNumbers?.[0]?.number,
-          linkedinUrl: data.socialLinks?.linkedin,
+          email: data?.emailAddresses?.[0]?.email,
+          phone: data?.phoneNumbers?.[0]?.number,
+          linkedinUrl: data?.socialLinks?.linkedin,
         };
       });
 
@@ -426,6 +423,29 @@ async function prospectContactSearch(params: {
 
 // Type for enriched contact from Lusha Prospecting API
 interface LushaEnrichedContact {
+  isSuccess?: boolean;
+  data?: {
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    jobTitle?: {
+      title?: string;
+    } | string;
+    company?: {
+      name?: string;
+      industry?: string;
+      size?: string;
+      mainIndustry?: string;
+      subIndustry?: string;
+      employees?: string;
+    };
+    emailAddresses?: Array<{ email?: string }>;
+    phoneNumbers?: Array<{ number?: string }>;
+    socialLinks?: {
+      linkedin?: string;
+    };
+    companyName?: string;
+  };
   fullName?: string;
   firstName?: string;
   lastName?: string;
@@ -773,7 +793,7 @@ export async function testLushaAPIRequest(
     try {
       responseData = JSON.parse(responseText);
       console.log('Response body:', JSON.stringify(responseData, null, 2));
-    } catch (e: unknown) {
+    } catch {
       console.log('Response text (not JSON):', responseText);
       responseData = responseText;
     }
@@ -944,59 +964,6 @@ function mapRegionsToCountries(regions: string[]): string[] {
   return countries.length > 0 ? countries : [];
 }
 
-/**
- * Map our job titles to Lusha department filters
- * Based on Lusha's available departments: Engineering & Technical, Marketing, Sales, etc.
- */
-function mapJobTitlesToDepartments(jobTitles: string[]): string[] {
-  const departments = new Set<string>();
-
-  jobTitles.forEach(title => {
-    const titleLower = title.toLowerCase();
-
-    // Sales roles
-    if (titleLower.includes('sales') || titleLower.includes('vp sales')) {
-      departments.add('Sales');
-    }
-
-    // Marketing roles
-    if (titleLower.includes('marketing') || titleLower.includes('cmo') || titleLower.includes('vp marketing')) {
-      departments.add('Marketing');
-    }
-
-    // Operations roles
-    if (titleLower.includes('operations') || titleLower.includes('coo') || titleLower.includes('director of operations')) {
-      departments.add('Operations');
-    }
-
-    // Product roles
-    if (titleLower.includes('product')) {
-      departments.add('Product Management');
-    }
-
-    // Engineering/Technical roles
-    if (titleLower.includes('cto') || titleLower.includes('engineering') || titleLower.includes('technical')) {
-      departments.add('Engineering & Technical');
-    }
-
-    // Executive roles (CEO, etc.)
-    if (titleLower.includes('ceo') || titleLower.includes('chief')) {
-      departments.add('Executive');
-    }
-
-    // Finance roles
-    if (titleLower.includes('cfo') || titleLower.includes('finance')) {
-      departments.add('Finance');
-    }
-
-    // HR roles
-    if (titleLower.includes('hr') || titleLower.includes('human resources')) {
-      departments.add('Human Resources');
-    }
-  });
-
-  return Array.from(departments);
-}
 
 /**
  * Search for a company by name or domain

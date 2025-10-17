@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { searchPeopleWithFallback, convertToLeadData } from '@/lib/lusha/client';
+import { searchPeopleWithFallback } from '@/lib/lusha/client';
 
 export async function POST() {
   try {
@@ -73,8 +73,8 @@ export async function POST() {
       });
     }
 
-    // Convert Lusha data to lead format
-    const leads = result.data.map(lead => convertToLeadData(lead));
+    // Data is already converted to LeadData format by searchPeopleWithFallback
+    const leads = result.data;
 
     // Save leads to database
     const leadsToSave = leads.map((lead) => ({
