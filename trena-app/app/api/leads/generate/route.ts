@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { ClayClient } from '@/lib/clay/client';
-import { ClayDataMapper } from '@/lib/clay/data-mapper';
+import { searchPeopleWithFallback } from '@/lib/lusha/client';
 
 export async function POST() {
   try {
@@ -32,42 +31,23 @@ export async function POST() {
       );
     }
 
-    // Initialize Clay.com client
-    const clayClient = new ClayClient({
-      apiKey: process.env.CLAY_API_KEY!,
-      rateLimit: {
-        requests_per_minute: 60,
-        requests_per_second: 1,
-        burst_limit: 5
-      },
-      cache: {
-        enabled: true,
-        ttl_hours: 24,
-        max_size: 100
-      },
-      mockData: {
-        enabled: process.env.CLAY_USE_MOCK_DATA === 'true',
-        fallback_on_error: true
-      }
-    });
-
-    console.log('🚀 Generating Clay.com leads for quick-win with preferences:', {
+    console.log('🚀 Generating leads for quick-win using Lusha API with preferences:', {
       industries: profile.target_industries,
       roles: profile.target_roles,
       region: profile.target_region
     });
 
-    // Search for leads using Clay.com
+    // Search for leads using Lusha API
     const userPreferences = {
       industries: profile.target_industries || [],
       roles: profile.target_roles || [],
       region: profile.target_region || undefined
     };
 
-    const result = await clayClient.searchPeopleWithFallback(
+    const result = await searchPeopleWithFallback(
       {
         industries: profile.target_industries || [],
-        job_titles: profile.target_roles || [],
+        jobTitles: profile.target_roles || [],
         regions: profile.target_region ? [profile.target_region] : [],
         limit: 3,
       },
@@ -78,7 +58,7 @@ export async function POST() {
       return NextResponse.json(
         {
           success: false,
-          error: result.error || 'Failed to fetch leads from Clay.com',
+          error: result.error || 'Failed to fetch leads from Lusha API',
         },
         { status: 500 }
       );
@@ -93,8 +73,18 @@ export async function POST() {
       });
     }
 
-    // Transform Clay.com data to lead format
-    const leads = ClayDataMapper.toLeadDataArray(result.data);
+    // Lusha API already returns enriched leads in the correct format
+    const leads = result.data.map(lead => ({
+      lead_name: lead.lead_name || lead.name,
+      job_title: lead.job_title,
+      company_name: lead.company_name,
+      email: lead.email,
+      phone: lead.phone,
+      linkedin_url: lead.linkedin_url,
+      company_size: lead.company_size,
+      industry: lead.industry,
+      source: lead.source || 'Lusha'
+    }));
 
     // Save leads to database
     const leadsToSave = leads.map((lead) => ({
